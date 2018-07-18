@@ -54,7 +54,7 @@ fac_loadings4 = normal(0,1)
 fac_loadings5 = normal(0,1)
 fac_loadings6 = normal(0,1)
 
-beta = normal(rep(0,PP),rep(0,PP))
+beta = normal(rep(0,PP),rep(1,PP))
 
 
 #lat_sd = uniform(0, 20)
