@@ -1,5 +1,8 @@
 
 #devtools::install_github("greta-dev/greta@dev")
+library(tensorflow)
+use_python("C:/Users/rjacobuc/AppData/Local/Continuum/anaconda3/lib/site-packages/tensorflow/__init__.py")
+
 library(greta)
 library(rstan)
 library(MASS);library(lavaan)
