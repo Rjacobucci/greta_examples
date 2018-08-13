@@ -2,9 +2,9 @@
 #Sys.setenv(TENSORFLOW_PYTHON="/afs/crc.nd.edu/x86_64_linux/t/tensorflow/1.8/gcc/python2/build/bin/python")
 library(tensorflow)
 #use_python("/afs/crc.nd.edu/x86_64_linux/t/tensorflow/1.8/gpu/python2/build/bin/python")
-use_python(system("which python", intern = TRUE))
+#use_python(system("which python", intern = TRUE))
 #tf$Session()
-devtools::install_github("greta-dev/greta@dev")
+#devtools::install_github("greta-dev/greta@dev")
 library(greta)
 library(rstan)
 library(MASS);library(lavaan)
@@ -82,11 +82,11 @@ m <- model(beta,
 
 
 #sample from model
-draws <- greta::mcmc(m, n_samples = 50000, warmup = 10000,
+draws <- greta::mcmc(m, n_samples = 1000, warmup = 200,
               initial_values=c(rnorm(3,.3,.2),rnorm(8,0.5,.1),rnorm(9,3,1),
                                                   runif(9,.5,1.5),runif(1,.5,.7),
                                                   rnorm(300,0,1)))
-
+summary(draws)
 
 # try assigning as variables
 
@@ -136,3 +136,21 @@ opt.out <- greta::opt(m,# n_samples = 50000, warmup = 10000,
                initial_values=c(rnorm(3,.3,.2),rnorm(8,0.5,.1),rnorm(9,3,1),
                                 runif(9,.5,1.5),runif(1,.5,.7),
                                 rnorm(300,0,1)))
+
+mcmc.out <- greta::mcmc(m, n_samples = 1000, warmup = 200,
+                        initial_values=c(rep(0.1,330)))
+                                        # rnorm(3,.3,.2),rnorm(8,0.5,.1),rnorm(9,3,1),
+                                        # runif(9,.5,1.5),runif(1,.5,.7),
+                                        # rnorm(300,0,.1)))
+                     
+m$target_greta_arrays        
+                        # initial_values=c(beta=rnorm(3,.3,.2),
+                        #               fac_loadings=rep(0.5,8),
+                         #              alpha=rnorm(9,3,1),
+                         #              var=runif(9,.5,1.5),
+                         #              lat_sd=runif(1,.5,.7),
+                         #              random_latent=rnorm(300,0,1)))
+summary(mcmc.out)
+plot(mcmc.out)
+
+MCMCvis::MCMCtrace(mcmc.out)

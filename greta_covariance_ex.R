@@ -11,8 +11,6 @@ y5 = 0.7*f + rnorm(2000,0,sqrt(0.3))
 y6 = 0.7*f + rnorm(2000,0,sqrt(0.3))  
 
 
-
-
 X = as.matrix(cbind(y1,y2,y3,y4,y5,y6))
 XX= as.matrix(cbind(X,X.small))
 N <- nrow(X)
@@ -21,11 +19,11 @@ colnames(XX) <- c("y1","y2","y3","y4","y5","y6",
                   "x1","x2","x3","x4","x5")
 
 lav.mod <- "
-f =~ NA*y1 + y2 + y3 + y4 + y5 + y6
+f =~ 1*y1 + y2 + y3 + y4 + y5 + y6
 #f ~ x1 + x2 + x3 + x4 + x5
-f ~~ 1*f"
+f ~~ f"
 
-lav.out <- sem(lav.mod,XX)
+lav.out <- sem(lav.mod,XX,meanstructure=F)
 summary(lav.out)
 fitmeasures(lav.out)
 
@@ -82,15 +80,16 @@ s.est = extractMatrices(lav.out)$S_est
 s.fixed = extractMatrices(lav.out)$S_fixed
 
 
-
+library(Matrix)
+rankMatrix(covar)
 
 a.gret = zeros(7,7)
-a.vars =  variable(dim=6) #
+a.vars =  variable(dim=5) #
 a.gret[a.mat != 0] = a.vars
 a.gret[a.fixed] = a.est[a.fixed]
 
 s.gret = zeros(7,7)
-s.vars = variable(lower=0,dim=6)#gamma(2,2,6) #
+s.vars = variable(lower=0,dim=7)#gamma(2,2,6) #
 s.gret[s.mat != 0] = s.vars
 s.gret[s.fixed] = s.est[s.fixed]
 
@@ -102,16 +101,16 @@ I = diag(7)
 sig = f.gret %*% solve(I-a.gret) %*% s.gret %*% t(solve(I-a.gret)) %*% t(f.gret)
 #f.mat %*% solve(I-a.est) %*% s.est %*% t(solve(I-a.est)) %*% t(f.mat)
 
-#distribution(covar) = multivariate_normal(rep(0,6),sig,dim=6)
-distribution(covar) = wishart(6,sig)
+distribution(covar) = multivariate_normal(rep(0,6),sig,dim=6)
+#distribution(covar) = wishart(6,sig)
 
-m.cov <- model(a.vars,s.vars)
+m.cov <- model(a.vars,s.vars,sig)
 
-opt.out <- opt(m.cov,max_iterations=1500,
-               initial_values=c(a.vars=rnorm(6,.7,.1),s.vars=runif(6,.3,.4)))
-opt.out
+#opt.out <- opt(m.cov,max_iterations=500,control=list(learning_rate=1))
+             #  initial_values=c(a.vars=rnorm(5,.7,.1),s.vars=runif(7,.3,.4)))
+#opt.out
 
 mcmc.out <- greta::mcmc(m.cov, n_samples = 1000, warmup = 100,
-                        initial_values=c(a.vars=rnorm(6,.7,.1),s.vars=runif(6,.3,.4)))
+                        initial_values=c(a.vars=rnorm(5,.7,.1),s.vars=runif(7,.3,.4)))
 summary(mcmc.out)
 MCMCvis::MCMCtrace(mcmc.out)
