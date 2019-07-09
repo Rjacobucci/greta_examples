@@ -1,4 +1,4 @@
-
+library(greta)
 
 # try using variable
 
@@ -109,14 +109,17 @@ beta = variable(dim=5)
 beta_full[7:11] = beta
 
 #distribution(phi) = normal(mu_phi,sd=1,dim=1)
-#sig = loads_full %*% 1 %*%  t(loads_full) + beta_full %*% t(beta_full) +  est_var
-sig = loads_full %*% 1 %*%  t(loads_full)  +  est_var %*% est_var  + beta_full %*% t(beta_full)
-distribution(covar) = multivariate_normal(rep(0,11),sig,dim=11)
+sig = loads_full %*%  t(loads_full) + beta_full %*% t(beta_full) +  est_var
+#sig = loads_full  %*%  t(loads_full)  +  est_var %*% est_var  + beta_full %*% t(beta_full)
+distribution(covar) = multivariate_normal(rep(0,11),sig,n_realisations=2000,dim=11)
 #distribution(covar) = wishart(10,sig)
 
-m.cov <- model(loads,sds,beta,n_cores=1)
+m.cov <- model(loads,sds,beta)
 
-#opt.out <- opt(m.cov,max_iterations=1500)
+opt.out <- opt(m.cov,max_iterations=1500,
+               initial_values=initials(loads=rnorm(6,.7,.1),
+                                       sds=runif(11,.3,.6),
+                                       beta=rnorm(5,.1,.01)))
 #opt.out
 
 mcmc.out <- greta::mcmc(m.cov, n_samples = 1000, warmup = 400,chains=1)

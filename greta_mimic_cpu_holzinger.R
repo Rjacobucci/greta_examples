@@ -132,10 +132,15 @@ m <- model(beta,
            lat_sd,
            random_latent)
 
-opt.out <- greta::opt(m,# n_samples = 50000, warmup = 10000,
-               initial_values=c(rnorm(3,.3,.2),rnorm(8,0.5,.1),rnorm(9,3,1),
-                                runif(9,.5,1.5),runif(1,.5,.7),
-                                rnorm(300,0,1)))
+opt.out <- greta::opt(m,max_iterations=1000,optimiser=rms_prop(learning_rate=.2,decay=.2))
+
+opt.out
+#initial_values=initials(beta=rnorm(3,.3,.2),
+#                        fac_loadings=rnorm(8,0.5,.1),
+#                        alpha=rnorm(9,3,1),
+#                        var=runif(9,.5,1.5),
+#                        lat_sd=runif(1,.5,.7),
+#                        random_latent=rnorm(300,0,1))
 
 mcmc.out <- greta::mcmc(m, n_samples = 1000, warmup = 200,
                         initial_values=c(rep(0.1,330)))
